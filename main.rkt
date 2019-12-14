@@ -179,3 +179,26 @@
                   (explode "fred")))
               ''(#\f #\r #\e #\d))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Random tests
+
+#|
+(define parses
+  (parameterize ((current-directory "progs"))
+    (for/list ([fn (directory-list)])
+      (list fn (call-with-input-file fn read-prog)))))
+
+(for ([p parses])
+  (match p
+    [(list fn p)
+     (check-true (and (prog? p)
+                      (closed? p))
+                 (list fn p))]))
+
+(for ([p parses])
+  (match p
+    [(list fn p)
+     (check-equal? (with-handlers ([exn:fail? identity])
+                     (run p))
+                   (eval p))]))
+|#

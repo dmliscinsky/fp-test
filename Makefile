@@ -14,7 +14,7 @@ compile: $(execs)
 compile-io: $(execs-io)
 
 run-io: $(execs-io)
-	@for d in `ls input`; do for f in input/$$d/*txt; do cat $$f | progs-io/$$d.run; done; done > run-io
+	@for d in `ls input`; do for f in input/$$d/*txt; do cat $$f | /usr/bin/time -f "$$f: %e" progs-io/$$d.run; done; done > run-io
 
 racket-io: $(execs-io)
 	@for d in `ls input`; do for f in input/$$d/*txt; do cat $$f | racket progs-io/$$d.rkt; done; done > racket-io
@@ -22,13 +22,14 @@ racket-io: $(execs-io)
 test: compile-io
 	for d in `ls input`; do for f in input/$$d/*txt; do echo $$f progs-io/$$d.run;  cat $$f | progs-io/$$d.run > /dev/null; done; done
 
-testall:
-	@make run-io > compiled-out.txt
-	@make racket-io > racket-out.txt
-	diff compiled-out.txt racket-out.txt
+testall: racket-io
+	@/usr/bin/time -p make run-io > compiled-out.txt
+	diff run-io racket-io
 
 clean:
-	-rm run-io
-	-rm racket-io
-	-rm progs/*run
-	-rm progs-io/*run
+	-rm -f run-io
+	-rm -f racket-io
+	-rm -f progs/*.run
+	-rm -f progs-io/*.run
+	-rm -f progs-io/*.o
+	-rm -f progs-io/*.s
